@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: revisoes
+      POSTGRES_USER: alisson
+      POSTGRES_PASSWORD: senha123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alisson -d revisoes"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DJANGO_DB_HOST=db
+      - DJANGO_DB_PORT=5432
+      - DJANGO_DB_NAME=revisoes
+      - DJANGO_DB_USER=alisson
+      - DJANGO_DB_PASSWORD=senha123
+
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
