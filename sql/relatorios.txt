@@ -1,0 +1,380 @@
+-- RELATÓRIOS DO SISTEMA DE REVISÕES DE VEÍCULOS
+
+-- ============================================================
+-- VEÍCULOS
+-- ============================================================
+
+-- 1. Todos os veículos com proprietário
+SELECT
+    v.id,
+    v.marca,
+    v.modelo,
+    v.ano,
+    v.placa,
+    v.cor,
+    p.nome AS proprietario,
+    p.sexo AS sexo_proprietario
+FROM alisson.veiculos v
+JOIN alisson.pessoas p ON v.proprietario_id = p.id
+ORDER BY p.nome, v.marca;
+
+-- 2. Todos os veículos por pessoa ordenados por nome
+SELECT
+    p.nome,
+    v.marca,
+    v.modelo,
+    v.ano,
+    v.placa,
+    v.cor
+FROM alisson.veiculos v
+JOIN alisson.pessoas p ON v.proprietario_id = p.id
+ORDER BY p.nome, v.marca;
+
+-- 3. Quantidade de veículos por pessoa (ranking)
+SELECT
+    p.nome,
+    p.sexo,
+    COUNT(v.id) AS total_veiculos
+FROM alisson.pessoas p
+LEFT JOIN alisson.veiculos v ON v.proprietario_id = p.id
+GROUP BY p.id, p.nome, p.sexo
+ORDER BY total_veiculos DESC, p.nome;
+
+-- 4. Quem tem mais veículos: homens ou mulheres
+SELECT
+    CASE p.sexo WHEN 'M' THEN 'Masculino' ELSE 'Feminino' END AS sexo,
+    COUNT(v.id) AS total_veiculos
+FROM alisson.pessoas p
+LEFT JOIN alisson.veiculos v ON v.proprietario_id = p.id
+GROUP BY p.sexo
+ORDER BY total_veiculos DESC;
+
+-- 5. Marcas ordenadas pelo número de veículos cadastrados
+SELECT
+    marca,
+    COUNT(*) AS total
+FROM alisson.veiculos
+GROUP BY marca
+ORDER BY total DESC;
+
+-- 6. Totais de marcas separados por sexo do proprietário
+SELECT
+    v.marca,
+    CASE p.sexo WHEN 'M' THEN 'Masculino' ELSE 'Feminino' END AS sexo,
+    COUNT(*) AS total
+FROM alisson.veiculos v
+JOIN alisson.pessoas p ON v.proprietario_id = p.id
+GROUP BY v.marca, p.sexo
+ORDER BY v.marca, total DESC;
+
+-- 7. Cores mais comuns nos veículos
+SELECT
+    cor,
+    COUNT(*) AS total
+FROM alisson.veiculos
+GROUP BY cor
+ORDER BY total DESC;
+
+-- 8. Veículos sem nenhuma revisão registrada
+SELECT
+    v.placa,
+    v.marca,
+    v.modelo,
+    v.ano,
+    p.nome AS proprietario
+FROM alisson.veiculos v
+JOIN alisson.pessoas p ON v.proprietario_id = p.id
+LEFT JOIN alisson.revisoes r ON r.veiculo_id = v.id
+WHERE r.id IS NULL
+ORDER BY p.nome;
+
+
+-- ============================================================
+-- PESSOAS
+-- ============================================================
+
+-- 9. Todas as pessoas com endereço completo
+SELECT
+    id,
+    nome,
+    cpf,
+    email,
+    telefone,
+    sexo,
+    data_nascimento,
+    EXTRACT(YEAR FROM AGE(data_nascimento))::integer AS idade,
+    cep,
+    rua,
+    numero,
+    bairro,
+    cidade,
+    estado
+FROM alisson.pessoas
+ORDER BY nome;
+
+-- 10. Pessoas separadas por sexo com totais e idade média
+SELECT
+    CASE sexo WHEN 'M' THEN 'Masculino' ELSE 'Feminino' END AS sexo,
+    COUNT(*) AS total,
+    ROUND(AVG(EXTRACT(YEAR FROM AGE(data_nascimento))), 1) AS idade_media,
+    MIN(EXTRACT(YEAR FROM AGE(data_nascimento)))::integer AS idade_minima,
+    MAX(EXTRACT(YEAR FROM AGE(data_nascimento)))::integer AS idade_maxima
+FROM alisson.pessoas
+GROUP BY sexo;
+
+-- 11. Pessoas por faixa etária
+SELECT
+    CASE
+        WHEN EXTRACT(YEAR FROM AGE(data_nascimento)) < 30 THEN 'Até 29 anos'
+        WHEN EXTRACT(YEAR FROM AGE(data_nascimento)) < 45 THEN '30 a 44 anos'
+        WHEN EXTRACT(YEAR FROM AGE(data_nascimento)) < 60 THEN '45 a 59 anos'
+        ELSE '60 anos ou mais'
+    END AS faixa_etaria,
+    COUNT(*) AS total
+FROM alisson.pessoas
+GROUP BY faixa_etaria
+ORDER BY faixa_etaria;
+
+-- 12. Pessoas que nasceram em um período específico
+-- (ajuste as datas conforme necessário)
+SELECT
+    nome,
+    cpf,
+    data_nascimento,
+    EXTRACT(YEAR FROM AGE(data_nascimento))::integer AS idade,
+    sexo
+FROM alisson.pessoas
+WHERE data_nascimento BETWEEN '1980-01-01' AND '1990-12-31'
+ORDER BY data_nascimento;
+
+-- 13. Distribuição de pessoas por cidade
+SELECT
+    cidade,
+    estado,
+    COUNT(*) AS total
+FROM alisson.pessoas
+WHERE cidade IS NOT NULL AND cidade <> ''
+GROUP BY cidade, estado
+ORDER BY total DESC;
+
+-- 14. Pessoas sem endereço cadastrado
+SELECT
+    nome,
+    cpf,
+    email
+FROM alisson.pessoas
+WHERE cep IS NULL OR cep = ''
+ORDER BY nome;
+
+
+-- ============================================================
+-- REVISÕES
+-- ============================================================
+
+-- 15. Todas as revisões com dados completos
+SELECT
+    r.id,
+    p.nome AS proprietario,
+    v.marca,
+    v.modelo,
+    v.placa,
+    r.data_revisao,
+    r.kilometragem,
+    r.valor,
+    r.oficina,
+    r.descricao
+FROM alisson.revisoes r
+JOIN alisson.veiculos v ON r.veiculo_id = v.id
+JOIN alisson.pessoas p ON v.proprietario_id = p.id
+ORDER BY r.data_revisao DESC;
+
+-- 16. Todas as revisões dentro de um período
+-- (ajuste as datas conforme necessário)
+SELECT
+    p.nome,
+    v.marca,
+    v.modelo,
+    v.placa,
+    r.data_revisao,
+    r.kilometragem,
+    r.valor,
+    r.oficina,
+    r.descricao
+FROM alisson.revisoes r
+JOIN alisson.veiculos v ON r.veiculo_id = v.id
+JOIN alisson.pessoas p ON v.proprietario_id = p.id
+WHERE r.data_revisao BETWEEN '2024-01-01' AND '2024-12-31'
+ORDER BY r.data_revisao;
+
+-- 17. Marcas com maior número de revisões
+SELECT
+    v.marca,
+    COUNT(r.id) AS total_revisoes,
+    ROUND(AVG(r.valor), 2) AS valor_medio,
+    SUM(r.valor) AS valor_total
+FROM alisson.revisoes r
+JOIN alisson.veiculos v ON r.veiculo_id = v.id
+GROUP BY v.marca
+ORDER BY total_revisoes DESC;
+
+-- 18. Pessoas com maior número de revisões
+SELECT
+    p.nome,
+    p.sexo,
+    COUNT(r.id) AS total_revisoes,
+    ROUND(AVG(r.valor), 2) AS ticket_medio,
+    SUM(r.valor) AS gasto_total
+FROM alisson.revisoes r
+JOIN alisson.veiculos v ON r.veiculo_id = v.id
+JOIN alisson.pessoas p ON v.proprietario_id = p.id
+GROUP BY p.id, p.nome, p.sexo
+ORDER BY total_revisoes DESC;
+
+-- 19. Oficinas mais utilizadas com valor médio e total arrecadado
+SELECT
+    oficina,
+    COUNT(*) AS total_atendimentos,
+    ROUND(AVG(valor), 2) AS ticket_medio,
+    SUM(valor) AS faturamento_total,
+    MIN(data_revisao) AS primeiro_atendimento,
+    MAX(data_revisao) AS ultimo_atendimento
+FROM alisson.revisoes
+GROUP BY oficina
+ORDER BY total_atendimentos DESC;
+
+-- 20. Média de tempo entre revisões por pessoa
+SELECT
+    p.nome,
+    p.sexo,
+    COUNT(*) AS revisoes_consideradas,
+    ROUND(AVG(diff), 1) AS media_dias_entre_revisoes
+FROM (
+    SELECT
+        v.proprietario_id,
+        r.data_revisao - LAG(r.data_revisao) OVER (
+            PARTITION BY v.proprietario_id ORDER BY r.data_revisao
+        ) AS diff
+    FROM alisson.revisoes r
+    JOIN alisson.veiculos v ON r.veiculo_id = v.id
+) sub
+JOIN alisson.pessoas p ON sub.proprietario_id = p.id
+WHERE diff IS NOT NULL
+GROUP BY p.id, p.nome, p.sexo
+ORDER BY media_dias_entre_revisoes;
+
+-- 21. Média de tempo entre revisões por veículo
+SELECT
+    p.nome AS proprietario,
+    v.marca,
+    v.modelo,
+    v.placa,
+    COUNT(*) AS revisoes_consideradas,
+    ROUND(AVG(diff), 1) AS media_dias_entre_revisoes
+FROM (
+    SELECT
+        r.veiculo_id,
+        r.data_revisao - LAG(r.data_revisao) OVER (
+            PARTITION BY r.veiculo_id ORDER BY r.data_revisao
+        ) AS diff
+    FROM alisson.revisoes r
+) sub
+JOIN alisson.veiculos v ON sub.veiculo_id = v.id
+JOIN alisson.pessoas p ON v.proprietario_id = p.id
+WHERE diff IS NOT NULL
+GROUP BY p.nome, v.id, v.marca, v.modelo, v.placa
+ORDER BY media_dias_entre_revisoes;
+
+-- 22. Próximas revisões previstas (baseado no tempo médio histórico)
+SELECT
+    p.nome,
+    v.id AS veiculo_id,
+    v.marca,
+    v.modelo,
+    v.placa,
+    MAX(r.data_revisao) AS ultima_revisao,
+    AVG(diff)::integer AS media_dias,
+    MAX(r.data_revisao) + (AVG(diff)::integer * INTERVAL '1 day') AS proxima_revisao,
+    CASE
+        WHEN MAX(r.data_revisao) + (AVG(diff)::integer * INTERVAL '1 day') < CURRENT_DATE
+            THEN 'VENCIDA'
+        WHEN MAX(r.data_revisao) + (AVG(diff)::integer * INTERVAL '1 day') <= CURRENT_DATE + 30
+            THEN 'VENCE EM BREVE'
+        ELSE 'OK'
+    END AS status
+FROM (
+    SELECT
+        r.id, r.veiculo_id, r.data_revisao,
+        r.data_revisao - LAG(r.data_revisao) OVER (
+            PARTITION BY r.veiculo_id ORDER BY r.data_revisao
+        ) AS diff
+    FROM alisson.revisoes r
+) r
+JOIN alisson.veiculos v ON r.veiculo_id = v.id
+JOIN alisson.pessoas p ON v.proprietario_id = p.id
+WHERE diff IS NOT NULL
+GROUP BY p.nome, v.id, v.marca, v.modelo, v.placa
+ORDER BY proxima_revisao;
+
+-- 23. Revisões vencidas (próxima revisão já passou)
+SELECT
+    p.nome,
+    v.marca,
+    v.modelo,
+    v.placa,
+    MAX(r.data_revisao) AS ultima_revisao,
+    MAX(r.data_revisao) + (AVG(diff)::integer * INTERVAL '1 day') AS deveria_ter_sido,
+    (CURRENT_DATE - (MAX(r.data_revisao) + (AVG(diff)::integer * INTERVAL '1 day')))::integer AS dias_em_atraso
+FROM (
+    SELECT
+        r.id, r.veiculo_id, r.data_revisao,
+        r.data_revisao - LAG(r.data_revisao) OVER (
+            PARTITION BY r.veiculo_id ORDER BY r.data_revisao
+        ) AS diff
+    FROM alisson.revisoes r
+) r
+JOIN alisson.veiculos v ON r.veiculo_id = v.id
+JOIN alisson.pessoas p ON v.proprietario_id = p.id
+WHERE diff IS NOT NULL
+GROUP BY p.nome, v.id, v.marca, v.modelo, v.placa
+HAVING MAX(r.data_revisao) + (AVG(diff)::integer * INTERVAL '1 day') < CURRENT_DATE
+ORDER BY dias_em_atraso DESC;
+
+-- 24. Gasto total por pessoa em revisões
+SELECT
+    p.nome,
+    p.sexo,
+    COUNT(r.id) AS total_revisoes,
+    SUM(r.valor) AS gasto_total,
+    ROUND(AVG(r.valor), 2) AS ticket_medio,
+    MIN(r.valor) AS menor_revisao,
+    MAX(r.valor) AS maior_revisao
+FROM alisson.pessoas p
+JOIN alisson.veiculos v ON v.proprietario_id = p.id
+JOIN alisson.revisoes r ON r.veiculo_id = v.id
+GROUP BY p.id, p.nome, p.sexo
+ORDER BY gasto_total DESC;
+
+-- 25. Evolução de quilometragem por veículo (todas as revisões em ordem)
+SELECT
+    p.nome AS proprietario,
+    v.marca,
+    v.modelo,
+    v.placa,
+    r.data_revisao,
+    r.kilometragem,
+    r.kilometragem - LAG(r.kilometragem) OVER (
+        PARTITION BY r.veiculo_id ORDER BY r.data_revisao
+    ) AS km_desde_ultima_revisao
+FROM alisson.revisoes r
+JOIN alisson.veiculos v ON r.veiculo_id = v.id
+JOIN alisson.pessoas p ON v.proprietario_id = p.id
+ORDER BY v.placa, r.data_revisao;
+
+-- 26. Revisões por mês (histórico mensal)
+SELECT
+    TO_CHAR(data_revisao, 'YYYY-MM') AS mes,
+    COUNT(*) AS total_revisoes,
+    ROUND(SUM(valor), 2) AS valor_total
+FROM alisson.revisoes
+GROUP BY TO_CHAR(data_revisao, 'YYYY-MM')
+ORDER BY mes;

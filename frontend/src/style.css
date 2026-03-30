@@ -1,109 +1,274 @@
-* {
+/* ═══════════════════════════════════════════════════════════════
+   STYLE.CSS — AutoRevisão
+   Arquivo global de estilos. Todos os componentes Vue usam estas
+   classes. Nenhum <style scoped> deve existir nos arquivos .vue.
+   ═══════════════════════════════════════════════════════════════ */
+
+
+/* ── RESET E BASE ─────────────────────────────────────────────
+   Remove margens e paddings padrão do navegador e garante que
+   o box-sizing inclua bordas e paddings no tamanho total dos elementos.
+   ─────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f0f2f5;
-  color: #333;
+
+/* ── VARIÁVEIS GLOBAIS (CSS Custom Properties) ────────────────
+   Centraliza todos os valores reutilizáveis do design system.
+   Para mudar a cor primária do sistema inteiro, basta alterar --primary aqui.
+   ─────────────────────────────────────────────────────────── */
+:root {
+  /* Cores principais */
+  --primary: #2563eb;
+  /* azul principal — botões, links, foco */
+  --primary-light: #eff6ff;
+  /* azul claro — fundo de seleção, hover */
+  --primary-dark: #1d4ed8;
+  /* azul escuro — hover de botão primário */
+
+  /* Cores de feedback */
+  --success: #16a34a;
+  /* verde — sucesso, badges de placa */
+  --success-light: #f0fdf4;
+  /* verde claro — fundo de mensagem de sucesso */
+  --danger: #dc2626;
+  /* vermelho — erros, exclusão */
+  --danger-light: #fef2f2;
+  /* vermelho claro — fundo de campo com erro */
+  --warning: #d97706;
+  /* âmbar — alertas, revisões próximas do vencimento */
+  --warning-light: #fffbeb;
+  /* âmbar claro — fundo de aviso */
+
+  /* Escala de cinzas */
+  --gray-50: #f9fafb;
+  /* fundo de cabeçalho de tabela */
+  --gray-100: #f3f4f6;
+  /* bordas suaves, hover de linha */
+  --gray-200: #e5e7eb;
+  /* bordas de inputs */
+  --gray-300: #d1d5db;
+  /* placeholder, fundo do body */
+  --gray-400: #9ca3af;
+  /* textos secundários, ícones */
+  --gray-500: #6b7280;
+  /* labels, subtítulos */
+  --gray-600: #4b5563;
+  /* textos de apoio */
+  --gray-700: #374151;
+  /* texto padrão de células de tabela */
+  --gray-800: #1f2937;
+  /* títulos de seção, textos importantes */
+  --gray-900: #111827;
+  /* títulos principais, valores numéricos */
+  --white: #ffffff;
+
+  /* Sombras (elevation system) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+
+  /* Raios de borda */
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Layout */
+  --topbar-h: 60px;
+  /* altura da barra de navegação fixa no topo */
+
+  /* Tipografia */
+  --font: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* ── LAYOUT ─────────────────────────────────────────── */
+
+/* ── BODY ─────────────────────────────────────────────────────
+   Estilo base do documento. O fundo cinza médio cria contraste
+   visual entre o conteúdo branco e o fundo da página.
+   ─────────────────────────────────────────────────────────── */
+body {
+  font-family: var(--font);
+  background: var(--gray-300);
+  color: var(--gray-800);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* suaviza fontes no macOS/Chrome */
+}
+
+
+/* ── LAYOUT PRINCIPAL ────────────────────────────────────────
+   O .layout engloba topbar + conteúdo e garante que a página
+   ocupe ao menos 100% da altura da viewport.
+   ─────────────────────────────────────────────────────────── */
 .layout {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 
-.sidebar {
-  width: 240px;
-  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-  color: white;
+
+/* ── TOPBAR (barra de navegação fixa) ────────────────────────
+   Fixada no topo da página, fica acima de todo o conteúdo (z-index 100).
+   O main-content tem padding-top para não ficar atrás dela.
+   ─────────────────────────────────────────────────────────── */
+.topbar {
+  height: var(--topbar-h);
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  padding: 0 28px;
+  gap: 32px;
   position: fixed;
-  height: 100vh;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
-  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-sm);
 }
 
-.sidebar-logo {
-  padding: 24px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+/* Agrupa logo + nome do sistema */
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  /* impede que encolha quando a tela é pequena */
 }
 
-.sidebar-logo h2 {
-  font-size: 16px;
+/* Quadrado azul com ícone de carro — identidade visual do sistema */
+.logo-icon {
+  width: 34px;
+  height: 34px;
+  background: var(--primary);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-icon svg {
+  width: 18px;
+  height: 18px;
+  color: white;
+}
+
+.brand-name {
+  font-size: 15px;
   font-weight: 700;
-  color: #4fc3f7;
-  line-height: 1.3;
+  color: var(--gray-900);
+  letter-spacing: -0.3px;
 }
 
-.sidebar-logo span {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
-}
 
-.sidebar-nav {
+/* ── NAVEGAÇÃO DA TOPBAR ─────────────────────────────────────
+   Links de navegação centralizados na topbar.
+   A classe .active é aplicada pelo Vue Router automaticamente
+   quando a rota corresponde ao link.
+   ─────────────────────────────────────────────────────────── */
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
   flex: 1;
-  padding: 16px 0;
+  justify-content: center;
 }
 
-.nav-item {
+.top-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  color: var(--gray-500);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  border-radius: var(--radius);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.top-nav-item svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.top-nav-item:hover {
+  background: var(--gray-100);
+  color: var(--gray-800);
+}
+
+/* Estado ativo — rota atual */
+.top-nav-item.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Lado direito da topbar (usuário logado, versão) */
+.topbar-right {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 20px;
-  color: rgba(255, 255, 255, 0.65);
-  text-decoration: none;
-  font-size: 14px;
+}
+
+.topbar-version {
+  font-size: 11px;
+  color: var(--gray-300);
   font-weight: 500;
-  transition: all 0.2s;
-  border-left: 3px solid transparent;
-  cursor: pointer;
 }
 
-.nav-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
-}
 
-.nav-item.active {
-  background: rgba(79, 195, 247, 0.15);
-  color: #4fc3f7;
-  border-left-color: #4fc3f7;
-}
-
-.nav-icon {
-  font-size: 18px;
-}
-
+/* ── CONTEÚDO PRINCIPAL ──────────────────────────────────────
+   Margem superior = altura da topbar para não ficar escondido atrás dela.
+   Centralizado com max-width para telas muito largas.
+   ─────────────────────────────────────────────────────────── */
 .main-content {
-  margin-left: 240px;
+  margin-top: var(--topbar-h);
   flex: 1;
-  padding: 28px;
-  min-height: 100vh;
+  padding: 32px;
+  max-width: 1400px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: calc(var(--topbar-h) + 32px);
 }
 
-/* ── PÁGINA ─────────────────────────────────────────── */
+
+/* ── CABEÇALHO DE PÁGINA ─────────────────────────────────────
+   Bloco de título + subtítulo no topo de cada tela (Pessoas, Veículos...).
+   ─────────────────────────────────────────────────────────── */
 .page-header {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .page-header h1 {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--gray-900);
+  letter-spacing: -0.3px;
 }
 
 .page-header p {
-  color: #888;
+  color: var(--gray-500);
   font-size: 14px;
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
-/* ── CARDS ──────────────────────────────────────────── */
+
+/* ── GRID DE CARDS (Dashboard) ───────────────────────────────
+   Grid responsivo de cards de estatística.
+   auto-fit + minmax faz as colunas se ajustarem automaticamente.
+   ─────────────────────────────────────────────────────────── */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -111,261 +276,483 @@ body {
   margin-bottom: 28px;
 }
 
+/* Card genérico — usado nos cards de totais do Dashboard */
 .card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--gray-100);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+  /* leve elevação no hover */
 }
 
+/* Quadrado colorido com ícone SVG dentro do card */
 .card-icon {
-  font-size: 32px;
-  margin-bottom: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  background: var(--primary-light);
 }
 
+.card-icon svg {
+  width: 20px;
+  height: 20px;
+  color: var(--primary);
+}
+
+/* Número grande do card (ex: "41 pessoas") */
 .card-value {
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--gray-900);
+  letter-spacing: -0.5px;
+  line-height: 1;
 }
 
+/* Rótulo abaixo do número */
 .card-label {
   font-size: 13px;
-  color: #888;
-  margin-top: 2px;
+  color: var(--gray-500);
+  margin-top: 5px;
+  font-weight: 400;
 }
 
-/* ── TABELA ─────────────────────────────────────────── */
+
+/* ── CONTAINER DE TABELA ─────────────────────────────────────
+   Envolve o cabeçalho + tabela em um card branco com sombra.
+   ─────────────────────────────────────────────────────────── */
 .table-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--gray-100);
   overflow: hidden;
+  /* garante que os cantos arredondados funcionem com a tabela */
 }
 
+/* Cabeçalho do container (título + botão "Nova pessoa" etc.) */
 .table-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--gray-100);
 }
 
 .table-header h3 {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
+  color: var(--gray-800);
 }
 
+.table-header p {
+  font-size: 13px;
+  color: var(--gray-400);
+  margin-top: 1px;
+}
+
+
+/* ── TABELA ──────────────────────────────────────────────────
+   Estilos globais para todas as tabelas do sistema.
+   ─────────────────────────────────────────────────────────── */
 table {
   width: 100%;
   border-collapse: collapse;
+  /* remove espaço duplo entre bordas */
 }
 
+/* Cabeçalho da tabela — fundo cinza claro com texto em caixa alta */
 th {
-  background: #f8f9fa;
-  padding: 12px 16px;
+  background: var(--gray-50);
+  padding: 11px 20px;
   text-align: left;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  color: #888;
+  color: var(--gray-500);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
+  border-bottom: 1px solid var(--gray-100);
 }
 
+/* Células de dados */
 td {
-  padding: 13px 16px;
+  padding: 14px 20px;
   font-size: 14px;
-  border-bottom: 1px solid #f5f5f5;
+  color: var(--gray-700);
+  border-bottom: 1px solid var(--gray-50);
 }
 
+/* Remove borda da última linha */
 tr:last-child td {
   border-bottom: none;
 }
 
-tr:hover td {
-  background: #fafafa;
+/* Fundo sutil ao passar o mouse sobre a linha */
+tbody tr {
+  transition: background 0.1s ease;
 }
 
-/* ── BOTÕES ─────────────────────────────────────────── */
+tbody tr:hover td {
+  background: var(--gray-50);
+}
+
+
+/* ── BOTÕES ──────────────────────────────────────────────────
+   Sistema de botões com variantes por cor e tamanho.
+   Todos herdam o estilo base .btn.
+   ─────────────────────────────────────────────────────────── */
 .btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  font-family: var(--font);
+  letter-spacing: 0.1px;
 }
 
+.btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Azul — ação principal (salvar, buscar, novo) */
 .btn-primary {
-  background: #4fc3f7;
-  color: #1a1a2e;
+  background: var(--primary);
+  color: var(--white);
 }
 
 .btn-primary:hover {
-  background: #29b6f6;
+  background: var(--primary-dark);
 }
 
+/* Verde — confirmação positiva */
 .btn-success {
-  background: #4caf50;
-  color: white;
+  background: var(--success);
+  color: var(--white);
 }
 
 .btn-success:hover {
-  background: #43a047;
+  background: #15803d;
 }
 
+/* Vermelho — exclusão, ações destrutivas */
 .btn-danger {
-  background: #ff5252;
-  color: white;
+  background: var(--danger);
+  color: var(--white);
 }
 
 .btn-danger:hover {
-  background: #e53935;
+  background: #b91c1c;
 }
 
+/* Âmbar — avisos */
 .btn-warning {
-  background: #ffa726;
-  color: white;
+  background: var(--warning-light);
+  color: var(--warning);
+  border: 1px solid #fde68a;
 }
 
 .btn-warning:hover {
-  background: #fb8c00;
+  background: #fef3c7;
 }
 
+/* Transparente com borda — ação secundária (cancelar) */
+.btn-ghost {
+  background: transparent;
+  color: var(--gray-600);
+  border: 1px solid var(--gray-200);
+}
+
+.btn-ghost:hover {
+  background: var(--gray-50);
+  color: var(--gray-800);
+}
+
+/* Modificadores de tamanho */
 .btn-sm {
-  padding: 5px 10px;
+  padding: 5px 11px;
   font-size: 12px;
 }
 
-/* ── MODAL ──────────────────────────────────────────── */
+.btn-icon {
+  padding: 6px;
+  border-radius: var(--radius-sm);
+}
+
+
+/* ── MODAL ───────────────────────────────────────────────────
+   Overlay semi-transparente + caixa de diálogo centralizada.
+   O backdrop-filter blur cria o efeito de vidro fosco.
+   ─────────────────────────────────────────────────────────── */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  /* cobre toda a viewport */
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeIn 0.2s ease;
+  /* acima de tudo, inclusive a topbar */
+  animation: fadeIn 0.15s ease;
+  padding: 40px;
 }
 
 .modal {
-  background: white;
-  border-radius: 16px;
-  padding: 28px;
-  width: 100%;
-  max-width: 520px;
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  width: 90%;
+  max-width: 1000px;
   max-height: 90vh;
   overflow-y: auto;
-  animation: slideUp 0.25s ease;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  /* scroll interno quando o conteúdo é grande */
+  animation: slideUp 0.2s ease;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--gray-100);
+  padding: 32px;
 }
 
-.modal h3 {
-  font-size: 18px;
+/* Versão larga do modal — para tabelas de veículos por pessoa */
+.modal-lg {
+  max-width: 1200px !important;
+  width: 95%;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px 0;
+}
+
+.modal-header h3 {
+  font-size: 17px;
   font-weight: 700;
-  margin-bottom: 20px;
-  color: #1a1a2e;
+  color: var(--gray-900);
+  letter-spacing: -0.2px;
 }
 
-/* ── FORMULÁRIO ─────────────────────────────────────── */
+/* Botão X para fechar o modal */
+.modal-close {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  color: var(--gray-400);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  background: var(--gray-100);
+  color: var(--gray-700);
+}
+
+.modal-body {
+  padding: 40px 48px;
+}
+
+.modal-footer {
+  padding: 0 28px 48px;
+  margin-top: 32px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  /* botões alinhados à direita */
+}
+
+
+/* ── FORMULÁRIO ──────────────────────────────────────────────
+   Estilos de campos, labels e grid de formulário nos modais.
+   ─────────────────────────────────────────────────────────── */
+
+/* Grid de 2 colunas para os campos do formulário */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 32px;
 }
 
+/* Grupo = label + input */
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
+/* Ocupa as 2 colunas do form-grid (ex: campo de descrição) */
 .form-group.full {
   grid-column: 1 / -1;
 }
 
+/* Labels em caixa alta e pequenos — padrão de formulário profissional */
 label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  color: #555;
+  color: var(--gray-900);
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
 }
 
+/* Estilo base para todos os campos de entrada */
 input,
 select,
 textarea {
-  padding: 10px 12px;
-  border: 1.5px solid #e0e0e0;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
   font-size: 14px;
-  transition: border-color 0.2s;
+  color: var(--gray-800);
+  background: var(--white);
+  transition: border-color 0.15s, box-shadow 0.15s;
   outline: none;
-  font-family: inherit;
+  font-family: var(--font);
+  width: 100%;
+  appearance: none;
+  /* remove estilos nativos do navegador (especialmente no Safari) */
 }
 
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--gray-300);
+}
+
+/* Borda azul + halo ao focar */
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: #4fc3f7;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--gray-300);
+}
+
+/* Seta customizada no select (a nativa é feia no Safari) */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 36px;
+  cursor: pointer;
 }
 
 textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 88px;
 }
 
-.form-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-top: 20px;
+
+/* ── VALIDAÇÃO DE CAMPOS ─────────────────────────────────────
+   Classes aplicadas dinamicamente pelo Vue quando há erro.
+   ─────────────────────────────────────────────────────────── */
+.input-erro {
+  border-color: var(--danger) !important;
+  background: var(--danger-light) !important;
 }
 
-/* ── BADGE ──────────────────────────────────────────── */
+.input-erro:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08) !important;
+}
+
+/* Mensagem de erro abaixo do campo */
+.msg-erro {
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 500;
+  animation: fadeInUp 0.15s ease;
+}
+
+
+/* ── BADGES ──────────────────────────────────────────────────
+   Pílulas coloridas usadas para sexo, placas e status.
+   ─────────────────────────────────────────────────────────── */
 .badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   padding: 3px 10px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .badge-m {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: #eff6ff;
+  color: #1d4ed8;
 }
 
+/* masculino — azul */
 .badge-f {
-  background: #fce4ec;
-  color: #c62828;
+  background: #fdf2f8;
+  color: #9d174d;
 }
 
+/* feminino  — rosa */
 .badge-success {
-  background: #e8f5e9;
-  color: #2e7d32;
+  /* placa, total — verde */
+  background: var(--success-light);
+  color: var(--success);
+  font-family: 'Courier New', monospace;
+  /* fonte monoespaçada para placas */
 }
 
-/* ── LOADING ─────────────────────────────────────────── */
+
+/* ── LOADING ─────────────────────────────────────────────────
+   Spinner de carregamento com animação CSS pura.
+   O ::before cria o círculo giratório via border-top colorido.
+   ─────────────────────────────────────────────────────────── */
 .loading {
   text-align: center;
-  padding: 60px;
-  color: #aaa;
-  font-size: 15px;
+  padding: 60px 20px;
+  color: var(--gray-400);
+  font-size: 14px;
 }
 
-/* ── ANIMAÇÕES ──────────────────────────────────────── */
+.loading::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid var(--gray-200);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  animation: spin 0.8s linear infinite;
+}
+
+
+/* ── ANIMAÇÕES ───────────────────────────────────────────────
+   Keyframes reutilizados por modais, mensagens e transições.
+   ─────────────────────────────────────────────────────────── */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -378,7 +765,7 @@ textarea {
 
 @keyframes slideUp {
   from {
-    transform: translateY(30px);
+    transform: translateY(16px);
     opacity: 0;
   }
 
@@ -390,7 +777,7 @@ textarea {
 
 @keyframes fadeInUp {
   from {
-    transform: translateY(20px);
+    transform: translateY(6px);
     opacity: 0;
   }
 
@@ -400,24 +787,44 @@ textarea {
   }
 }
 
-.fade-in {
-  animation: fadeInUp 0.3s ease forwards;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* ── RESPONSIVO ─────────────────────────────────────── */
+/* Classe de entrada aplicada nas views ao navegar entre telas */
+.fade-in {
+  animation: fadeInUp 0.25s ease forwards;
+}
+
+
+/* ── RESPONSIVIDADE ──────────────────────────────────────────
+   Ajustes para telas menores (tablets e celulares).
+   ─────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .sidebar {
-    width: 60px;
+  .topbar {
+    padding: 0 16px;
+    gap: 16px;
   }
 
-  .sidebar-logo,
-  .nav-label {
+  .brand-name {
     display: none;
   }
 
+  /* esconde nome em telas pequenas */
+  .top-nav-item span {
+    display: none;
+  }
+
+  /* mostra só ícone na nav */
+  .top-nav-item {
+    padding: 7px 10px;
+  }
+
   .main-content {
-    margin-left: 60px;
     padding: 16px;
+    padding-top: calc(var(--topbar-h) + 16px);
   }
 
   .form-grid {
@@ -427,4 +834,588 @@ textarea {
   .cards-grid {
     grid-template-columns: 1fr 1fr;
   }
+
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPONENTES ESPECÍFICOS
+   Classes usadas em telas específicas mas definidas aqui
+   para manter um único arquivo de estilos global.
+   ═══════════════════════════════════════════════════════════════ */
+
+
+/* ── ALERTAS (Dashboard) ─────────────────────────────────────
+   Cards de alerta de revisões vencidas ou próximas do vencimento.
+   ─────────────────────────────────────────────────────────── */
+.alertas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.alerta {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--gray-100);
+  overflow: hidden;
+  animation: fadeInUp 0.3s ease;
+}
+
+.alerta-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+/* Variante vermelha — revisões vencidas */
+.alerta-perigo .alerta-header {
+  background: #fff5f5;
+}
+
+/* Variante âmbar — revisões vencendo em breve */
+.alerta-aviso .alerta-header {
+  background: #fffdf0;
+}
+
+.alerta-icone {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.alerta-perigo .alerta-icone {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.alerta-aviso .alerta-icone {
+  background: #fef3c7;
+  color: var(--warning);
+}
+
+.alerta-icone svg {
+  width: 20px;
+  height: 20px;
+}
+
+.alerta-header>div:last-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.alerta-header strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.alerta-badge {
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.alerta-badge-perigo {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.alerta-badge-aviso {
+  background: #fef3c7;
+  color: var(--warning);
+}
+
+.alerta-lista {
+  padding: 8px 0;
+}
+
+.alerta-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--gray-50);
+  transition: background 0.1s;
+}
+
+.alerta-item:last-child {
+  border-bottom: none;
+}
+
+.alerta-item:hover {
+  background: var(--gray-50);
+}
+
+.alerta-item-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Placa no estilo de placa de carro — fonte monoespaçada */
+.alerta-placa {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--gray-100);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  color: var(--gray-700);
+}
+
+.alerta-nome {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.alerta-veiculo {
+  font-size: 12px;
+  color: var(--gray-400);
+}
+
+.alerta-data {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.alerta-data-perigo {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.alerta-data-aviso {
+  background: #fef3c7;
+  color: var(--warning);
+}
+
+/* Rodapé do alerta quando há mais itens do que os exibidos */
+.alerta-mais {
+  padding: 10px 20px;
+  font-size: 12px;
+  color: var(--gray-400);
+  text-align: center;
+  font-style: italic;
+}
+
+/* Badges de status de revisão na tabela principal */
+.badge-vencida {
+  background: #fee2e2;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.badge-proxima {
+  background: #fef3c7;
+  color: var(--warning);
+  font-weight: 600;
+}
+
+
+/* ── CAIXA DE EDIÇÃO INLINE ──────────────────────────────────
+   Aparece na tela de revisões quando o usuário clica em editar,
+   exibindo o formulário dentro da própria linha da tabela.
+   ─────────────────────────────────────────────────────────── */
+.edicao-box {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+  animation: fadeInUp 0.2s ease;
+}
+
+
+/* ── MENSAGENS GLOBAIS ───────────────────────────────────────
+   Exibidas acima dos formulários ao salvar ou em caso de erro.
+   ─────────────────────────────────────────────────────────── */
+.msg-sucesso {
+  background: var(--success-light);
+  color: var(--success);
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  animation: fadeInUp 0.2s ease;
+}
+
+.msg-erro-geral {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid #fecaca;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  animation: fadeInUp 0.2s ease;
+}
+
+
+/* ── TEXTO TRUNCADO ──────────────────────────────────────────
+   Impede que textos longos (nomes, emails) quebrem a linha na tabela.
+   Exibe reticências (...) quando o texto não cabe.
+   ─────────────────────────────────────────────────────────── */
+.texto-truncado {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* ── BOTÕES DE ÍCONE (tabelas) ───────────────────────────────
+   Botões discretos com emoji (✏️ 🗑️) usados nas ações de cada linha.
+   Ficam invisíveis até o hover — mantém a tabela limpa.
+   ─────────────────────────────────────────────────────────── */
+.btn-icone {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn-icone:hover {
+  background: var(--gray-100);
+  border-color: var(--gray-200);
+}
+
+/* Variante vermelha — botão de excluir */
+.btn-icone-perigo:hover {
+  background: var(--danger-light);
+  border-color: #fecaca;
+}
+
+
+/* ── RADIO BUTTONS ESTILIZADOS ───────────────────────────────
+   Usado no campo de Sexo do formulário de Pessoas.
+   Substitui o <select> por botões de opção visuais (M / F).
+   ─────────────────────────────────────────────────────────── */
+.radio-grupo {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.radio-opcao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-600);
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.radio-opcao input[type="radio"] {
+  width: auto;
+  appearance: auto;
+  margin: 0;
+}
+
+.radio-opcao:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Estado selecionado — fundo azul claro */
+.radio-opcao.ativo {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Borda vermelha quando o campo é obrigatório e não foi preenchido */
+.input-erro-radio .radio-opcao {
+  border-color: var(--danger);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   RELATÓRIOS (Relatorios.vue)
+   Classes exclusivas da tela de relatórios com gráficos e tabelas
+   interativas que abrem ao clicar.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Separação entre seções (Veículos / Pessoas / Revisões) */
+.relatorio-secao {
+  margin-bottom: 32px;
+}
+
+/* Título de seção — pequeno, cinza, maiúsculo (igual a um label de grupo) */
+.relatorio-titulo {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+/* Grid de 2 colunas específico para os cards de relatório
+   (diferente do .cards-grid do dashboard que é auto-fit) */
+.relatorio-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+/* Card clicável — hover destaca com borda azul */
+.relatorio-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-100);
+  box-shadow: var(--shadow);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  user-select: none;
+  /* impede seleção de texto ao clicar rápido */
+}
+
+.relatorio-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+/* Estado ativo — quando a tabela está expandida */
+.relatorio-card.ativo {
+  border-color: var(--primary);
+}
+
+/* Card largo — ocupa as 2 colunas (próximas revisões, veículos por pessoa) */
+.relatorio-card-largo {
+  grid-column: span 2;
+}
+
+/* Card de período — não é clicável, tem formulário próprio */
+.periodo-card {
+  cursor: default;
+}
+
+.periodo-card:hover {
+  border-color: var(--gray-100);
+  box-shadow: var(--shadow);
+}
+
+/* Cabeçalho do card: título à esquerda + dica de toggle à direita */
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.card-header-row h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+/* "▼ detalhes" / "▲ fechar" — indica interatividade */
+.toggle-hint {
+  font-size: 11px;
+  color: var(--gray-400);
+  white-space: nowrap;
+}
+
+/* Container do gráfico com altura fixa — evita gráficos gigantes */
+.grafico-compacto {
+  height: 160px;
+  position: relative;
+}
+
+/* Gráfico de pizza centralizado e mais estreito */
+.grafico-pie {
+  max-width: 240px;
+  margin: 0 auto;
+}
+
+/* Resumo numérico usado em "Veículos por pessoa" (sem gráfico) */
+.resumo-inline {
+  display: flex;
+  gap: 24px;
+  padding: 12px 0;
+}
+
+.resumo-stat {
+  font-size: 13px;
+  color: var(--gray-500);
+}
+
+/* Número grande dentro do resumo */
+.resumo-stat strong {
+  color: var(--gray-900);
+  font-size: 20px;
+  display: block;
+}
+
+/* Tabela que aparece ao clicar no card — separada do gráfico por linha */
+.tabela-detalhe {
+  margin-top: 16px;
+  border-top: 1px solid var(--gray-100);
+  padding-top: 16px;
+  overflow-x: auto;
+  /* scroll horizontal em telas pequenas */
+}
+
+/* Filtros de data do card de período */
+.periodo-filtros {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+/* ── Animação de slide para a tabela de detalhe ───────────── */
+/* Usada com <transition name="slide"> no Relatorios.vue      */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+
+.slide-enter-to,
+.slide-leave-from {
+  opacity: 1;
+  max-height: 600px;
+  /* valor alto o suficiente para qualquer tabela */
+}
+
+/* Responsividade dos relatórios */
+@media (max-width: 768px) {
+  .relatorio-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .relatorio-card-largo {
+    grid-column: span 1;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ENDEREÇO COM VIACEP (Pessoas.vue)
+   Estilos do bloco de endereço com autopreenchimento por CEP.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Linha separadora entre dados pessoais e endereço no formulário */
+.endereco-separador {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 4px;
+}
+
+.endereco-separador span {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.endereco-separador::before,
+.endereco-separador::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gray-100);
+}
+
+/* Wrapper do campo CEP — posiciona o spinner/ícone dentro do input */
+.cep-wrapper {
+  position: relative;
+}
+
+.cep-wrapper input {
+  padding-right: 36px;
+  /* espaço para o ícone à direita */
+}
+
+/* Spinner de carregamento animado enquanto consulta o ViaCEP */
+.cep-spinner {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--gray-200);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* Ícone verde de confirmação quando o endereço foi encontrado */
+.cep-ok {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--success);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Dica abaixo do campo CEP */
+.cep-dica {
+  font-size: 11px;
+  color: var(--gray-400);
+  margin-top: 2px;
+}
+
+/* Input somente leitura (cidade/estado preenchidos automaticamente) */
+.input-readonly {
+  background: var(--gray-50) !important;
+  color: var(--gray-500) !important;
+  cursor: default !important;
+  border-color: var(--gray-100) !important;
+}
+
+.input-readonly:focus {
+  border-color: var(--gray-100) !important;
+  box-shadow: none !important;
 }
