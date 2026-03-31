@@ -46,7 +46,9 @@ class PessoaViewSet(viewsets.ModelViewSet):
             cache.delete(chave)
         
         # Limpa todas as chaves dinâmicas de filtro de idade geradas pelo Redis
-        cache.delete_pattern("pessoas_idade_*")
+        chaves_idade = cache.keys("pessoas_idade_*")
+        if chaves_idade:
+            cache.delete_many(chaves_idade)
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -207,7 +209,9 @@ class RevisaoViewSet(viewsets.ModelViewSet):
             cache.delete(chave)
             
         # Limpa todas as chaves dinâmicas de filtro por data geradas pelo Redis
-        cache.delete_pattern("revisoes_periodo_*")
+        chaves_periodo = cache.keys("revisoes_periodo_*")
+        if chaves_periodo:
+            cache.delete_many(chaves_periodo)
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
