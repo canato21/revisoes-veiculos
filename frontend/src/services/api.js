@@ -17,7 +17,7 @@ import axios from 'axios'
  * Assim, as configurações abaixo se aplicam a TODAS as requisições.
  */
 const api = axios.create({
-    baseURL: 'http://localhost:8000/api', // URL base do backend Django
+    baseURL: 'http://18.220.94.209:8000/api/', // URL base do backend Django
     headers: {
         'Content-Type': 'application/json'  // informa que enviamos JSON
     }
