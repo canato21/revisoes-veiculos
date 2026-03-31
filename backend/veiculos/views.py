@@ -39,6 +39,7 @@ class PessoaViewSet(viewsets.ModelViewSet):
     # ── LIMPEZA DE CACHE ──
     def limpar_caches_pessoa(self):
         chaves_fixas = [
+            'dashboard_resumo', # Atualiza contadores do dashboard
             'pessoas_por_sexo', 'veiculos_por_pessoa', 'veiculos_quem_tem_mais', 
             'veiculos_marcas_sexo', 'revisoes_pessoas_mais', 'revisoes_media_tempo', 'revisoes_proximas'
         ]
@@ -123,6 +124,7 @@ class VeiculoViewSet(viewsets.ModelViewSet):
     # ── LIMPEZA DE CACHE ──
     def limpar_caches_veiculo(self):
         chaves = [
+            'dashboard_resumo', # Atualiza contadores do dashboard
             'veiculos_por_pessoa', 'veiculos_quem_tem_mais', 'veiculos_por_marca', 
             'veiculos_marcas_sexo', 'revisoes_marcas_mais', 'revisoes_proximas'
         ]
@@ -191,6 +193,20 @@ class VeiculoViewSet(viewsets.ModelViewSet):
         resultado = list(Veiculo.objects.values('marca', 'proprietario__sexo').annotate(total=Count('id')).order_by('marca', '-total'))
         cache.set('veiculos_marcas_sexo', resultado, timeout=TEMPO_CACHE)
         return Response(resultado)
+    
+    @action(detail=False, methods=['get'], url_path='resumo')
+    def resumo_totais(self, request):
+        dados_cacheados = cache.get('dashboard_resumo')
+        if dados_cacheados: return Response(dados_cacheados)
+
+        dados = {
+            'pessoas': Pessoa.objects.count(),
+            'veiculos': Veiculo.objects.count(),
+            'revisoes': Revisao.objects.count()
+        }
+        
+        cache.set('dashboard_resumo', dados, timeout=TEMPO_CACHE)
+        return Response(dados)
 
 
 class RevisaoViewSet(viewsets.ModelViewSet):
@@ -202,6 +218,7 @@ class RevisaoViewSet(viewsets.ModelViewSet):
     # ── LIMPEZA DE CACHE ──
     def limpar_caches_revisao(self):
         chaves = [
+            'dashboard_resumo', # Atualiza contadores do dashboard
             'revisoes_marcas_mais', 'revisoes_pessoas_mais', 
             'revisoes_media_tempo', 'revisoes_proximas', 'revisoes_oficina'
         ]
@@ -339,4 +356,4 @@ class RevisaoViewSet(viewsets.ModelViewSet):
 
         resultado = list(Revisao.objects.values('oficina').annotate(total=Count('id')).order_by('-total'))
         cache.set('revisoes_oficina', resultado, timeout=TEMPO_CACHE)
-        return Response(resultado)  
+        return Response(resultado)

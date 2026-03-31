@@ -225,7 +225,7 @@
           <div style="display:flex; justify-content:space-between;">
             <span class="msg-erro" v-if="erros.numero">{{ erros.numero }}</span>
             <span style="font-size:11px; color:var(--gray-400); margin-left:auto;">{{ (form.numero || '').length
-              }}/10</span>
+            }}/10</span>
           </div>
         </div>
 
