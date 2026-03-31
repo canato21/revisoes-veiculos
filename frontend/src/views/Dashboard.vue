@@ -5,6 +5,7 @@
       <p>Gerenciador de revisões veiculares</p>
     </div>
 
+    <!-- Alertas -->
     <div v-if="vencidas.length > 0 || vencendo30.length > 0" class="alertas-grid">
 
       <div v-if="vencidas.length > 0" class="alerta alerta-perigo">
@@ -119,6 +120,7 @@
     </div>
   </div>
 
+  <!-- ── MODAL DE ALERTAS (lista de veículos) ──────────────────────────────── -->
   <div class="modal-overlay" v-if="modalAlertasAberto" @click.self="modalAlertasAberto = false">
     <div class="modal modal-lg">
       <div class="modal-header">
@@ -168,6 +170,9 @@
     </div>
   </div>
 
+  <!-- ── MODAL DE REVISÃO — usa o componente padrão                         ── -->
+  <!-- iniciarNovo=true  → abre direto no formulário                           -->
+  <!-- semHistorico=true → "← Voltar" fecha o modal em vez de ir para a lista  -->
   <ModalRevisao v-if="veiculoParaRevisao" :veiculo="veiculoParaRevisao" :iniciar-novo="true" :sem-historico="true"
     @fechar="fecharRevisao" />
 
@@ -175,7 +180,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { veiculosAPI, revisoesAPI } from '../services/api'
+import { pessoasAPI, veiculosAPI, revisoesAPI } from '../services/api'
 import ModalRevisao from '../components/ModalRevisao.vue'
 
 // ── ESTADO ────────────────────────────────────────────────────────────────────
@@ -211,8 +216,20 @@ function abrirNovaRevisao(item) {
 
 async function fecharRevisao() {
   veiculoParaRevisao.value = null
-  // Recarrega tudo para limpar cache e atualizar contadores
-  await carregarDados()
+  // Recarrega os alertas para refletir a revisão salva
+  try {
+    const prox = await revisoesAPI.proximasRevisoes()
+    const lista = Array.isArray(prox.data) ? prox.data : (prox.data.results || [])
+    proximas.value = lista
+    totais.value.proximas = lista.length
+    const hoje = new Date()
+    vencidas.value = lista.filter(p => p.proxima_revisao && new Date(p.proxima_revisao) < hoje)
+    vencendo30.value = lista.filter(p => {
+      if (!p.proxima_revisao) return false
+      const diff = (new Date(p.proxima_revisao) - hoje) / (1000 * 60 * 60 * 24)
+      return diff >= 0 && diff <= 30
+    })
+  } catch (e) { console.error(e) }
 }
 
 function formatarData(data) {
@@ -221,44 +238,48 @@ function formatarData(data) {
   return `${d}/${m}/${y}`
 }
 
-// ── LÓGICA DE CARREGAMENTO ───────────────────────────────────────────────────
 
-async function carregarDados() {
+// ── CARREGAMENTO INICIAL ──────────────────────────────────────────────────────
+
+onMounted(async () => {
   try {
-    // Chamamos apenas 3 rotas otimizadas
-    const [resResumo, resMarcas, resProx, resOficinas] = await Promise.all([
-      veiculosAPI.resumo(),
+    const [p, v, r, pm, prox] = await Promise.all([
+      pessoasAPI.listar(),
+      veiculosAPI.listar(),
+      revisoesAPI.listar(),
       veiculosAPI.porMarca(),
       revisoesAPI.proximasRevisoes(),
-      revisoesAPI.porOficina() // Certifique-se que esta rota existe na sua API service
     ])
 
-    // 1. Atualiza Totais Numéricos
-    totais.value.pessoas = resResumo.data.pessoas
-    totais.value.veiculos = resResumo.data.veiculos
-    totais.value.revisoes = resResumo.data.revisoes
+    const pessoasList = Array.isArray(p.data) ? p.data : (p.data.results || [])
+    const veiculosList = Array.isArray(v.data) ? v.data : (v.data.results || [])
+    const revisoesList = Array.isArray(r.data) ? r.data : (r.data.results || [])
 
-    // 2. Marcas e Oficinas
-    marcas.value = resMarcas.data
-    oficinas.value = resOficinas.data
-
-    // 3. Processa Alertas de Revisão
-    const listaProx = Array.isArray(resProx.data) ? resProx.data : (resProx.data.results || [])
-    proximas.value = listaProx
-    totais.value.proximas = listaProx.length
+    totais.value.pessoas = p.data.count || pessoasList.length
+    totais.value.veiculos = veiculosList.length
+    totais.value.revisoes = revisoesList.length
+    marcas.value = Array.isArray(pm.data) ? pm.data : (pm.data.results || [])
+    proximas.value = Array.isArray(prox.data) ? prox.data : (prox.data.results || [])
+    totais.value.proximas = proximas.value.length
 
     const hoje = new Date()
-    vencidas.value = listaProx.filter(p => p.proxima_revisao && new Date(p.proxima_revisao) < hoje)
-    vencendo30.value = listaProx.filter(p => {
+    vencidas.value = proximas.value.filter(p =>
+      p.proxima_revisao && new Date(p.proxima_revisao) < hoje
+    )
+    vencendo30.value = proximas.value.filter(p => {
       if (!p.proxima_revisao) return false
       const diff = (new Date(p.proxima_revisao) - hoje) / (1000 * 60 * 60 * 24)
       return diff >= 0 && diff <= 30
     })
 
-  } catch (e) {
-    console.error("Erro ao carregar Dashboard:", e)
-  }
-}
+    const offMap = {}
+    revisoesList.forEach(r => { offMap[r.oficina] = (offMap[r.oficina] || 0) + 1 })
+    oficinas.value = Object.entries(offMap)
+      .map(([oficina, total]) => ({ oficina, total }))
+      .sort((a, b) => b.total - a.total)
 
-onMounted(carregarDados)
+  } catch (e) {
+    console.error(e)
+  }
+})
 </script>
