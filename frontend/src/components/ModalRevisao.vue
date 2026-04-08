@@ -31,7 +31,7 @@
                             <td>{{ formatarData(rev.data_revisao) }}</td>
                             <td>{{ Number(rev.kilometragem).toLocaleString('pt-BR') }} km</td>
                             <td><span class="texto-truncado" style="max-width:120px; display:inline-block;">{{
-                                    rev.oficina }}</span></td>
+                                rev.oficina }}</span></td>
                             <td>{{ formatarValor(rev.valor) }}</td>
                             <td>
                                 <button class="btn-icone" title="Editar" @click="editarRevisao(rev)">✏️</button>
@@ -301,7 +301,7 @@ function selecionarOficina(nome) {
     delete erros.value.oficina
 }
 
-// ── CADASTRO DE NOVA OFICINA (inline) ─────────────────────────────────────
+// ── CADASTRO DE NOVA OFICINA ─────────────────────────────────────
 const cadastrandoOficina = ref(false)
 const novaOficinaNome = ref('')
 const erroNovaOficina = ref('')

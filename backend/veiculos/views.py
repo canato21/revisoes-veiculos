@@ -12,7 +12,6 @@ Cada ModelViewSet herda automaticamente 5 ações:
   update   → PUT    /api/recurso/{id}/   — atualiza completamente
   destroy  → DELETE /api/recurso/{id}/   — deleta
 
-Além disso, usamos @action para criar endpoints customizados (relatórios).
 """
 
 from rest_framework import viewsets, filters
@@ -46,7 +45,6 @@ class PessoaViewSet(viewsets.ModelViewSet):
         for chave in chaves_fixas:
             cache.delete(chave)
         
-        # Limpa todas as chaves dinâmicas de filtro de idade geradas pelo Redis
         chaves_idade = cache.keys("pessoas_idade_*")
         if chaves_idade:
             cache.delete_many(chaves_idade)
@@ -63,7 +61,7 @@ class PessoaViewSet(viewsets.ModelViewSet):
         super().perform_destroy(instance)
         self.limpar_caches_pessoa()
 
-    # ── RELATÓRIOS (Com Cache) ──
+    # ── RELATÓRIOS ──
     @action(detail=False, methods=['get'], url_path='por-sexo')
     def por_sexo(self, request):
         dados_cacheados = cache.get('pessoas_por_sexo')
@@ -124,7 +122,7 @@ class VeiculoViewSet(viewsets.ModelViewSet):
     # ── LIMPEZA DE CACHE ──
     def limpar_caches_veiculo(self):
         chaves = [
-            'dashboard_resumo', # Atualiza contadores do dashboard
+            'dashboard_resumo', 
             'veiculos_por_pessoa', 'veiculos_quem_tem_mais', 'veiculos_por_marca', 
             'veiculos_marcas_sexo', 'revisoes_marcas_mais', 'revisoes_proximas'
         ]
@@ -150,7 +148,7 @@ class VeiculoViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(proprietario_id=proprietario_id)
         return queryset
 
-    # ── RELATÓRIOS (Com Cache) ──
+    # ── RELATÓRIOS──
     @action(detail=False, methods=['get'], url_path='por-pessoa')
     def por_pessoa(self, request):
         dados_cacheados = cache.get('veiculos_por_pessoa')
@@ -249,7 +247,7 @@ class RevisaoViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(veiculo_id=veiculo_id)
         return queryset
 
-    # ── RELATÓRIOS (Com Cache) ──
+    # ── RELATÓRIOS──
     @action(detail=False, methods=['get'], url_path='por-periodo')
     def por_periodo(self, request):
         data_inicio = request.query_params.get('inicio', 'todos')
